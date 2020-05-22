@@ -7,6 +7,5 @@
 点赞和取消
 ![image](https://github.com/gclonghorn/blog/blob/backend/api/1.png)
 ![image](https://github.com/gclonghorn/blog/blob/backend/api/2.png)
-##博文列表页 支持搜索 分类 排序 分页 查看详情
 ![image](https://github.com/gclonghorn/blog/blob/backend/api/3.png)
 

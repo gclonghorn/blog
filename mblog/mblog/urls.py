@@ -5,12 +5,13 @@ from django.contrib import admin
 from rest_framework.documentation import include_docs_urls
 from browse.views import PostListSet, CategoryViewset
 from comments.views import CommentViewset,LikeViewset
+from post.views import PostEditViewset
 from rest_framework.authtoken import views
 from rest_framework_jwt.views import obtain_jwt_token
 from user.views import UserViewset
 router=DefaultRouter()
 #配置postsurl
-router.register(r'search', PostListSet,basename="search")
+router.register(r'list', PostListSet,basename="list")
 #配置category的ur
 router.register(r'category', CategoryViewset,basename="category")
 #评论
@@ -19,6 +20,8 @@ router.register(r'comment', CommentViewset,basename="comment")
 router.register(r'like', LikeViewset,basename="like")
 #用户
 router.register(r'user', UserViewset)
+#编辑博文
+router.register(r'edit',PostEditViewset)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

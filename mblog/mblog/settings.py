@@ -26,8 +26,8 @@ SECRET_KEY = 'dsq+z6n87w=89u(k=&#=b%_+82tbdba4(#nxsa%*!b2hmcn_7^'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-
+#增加 跨域允许all hosts
+CORS_ORIGIN_ALLOW_ALL=True
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,11 +42,14 @@ INSTALLED_APPS = [
     'post',
     'user',
     'comments',
-    'django_filters',
-    'rest_framework.authtoken',
+    'django_filters',#过滤
+    'rest_framework.authtoken',#认证
+    'corsheaders',#跨域
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',#跨域
+    'django.middleware.common.CommonMiddleware',#跨域
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

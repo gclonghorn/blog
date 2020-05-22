@@ -15,7 +15,7 @@ class UserSrializer(serializers.ModelSerializer):
         model = User
         fields = ("username","id")
 
-
+#用于搜索结果展示博文概要
 class PostSerializer(serializers.ModelSerializer):
     author = UserSrializer()
 
@@ -23,7 +23,7 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ("title","author","pub_date","id")
 
-
+#用于展示博文详情
 class PostDetailSerializer(serializers.ModelSerializer):
     author = UserSrializer()
     category = CategorySrializer()
@@ -33,4 +33,5 @@ class PostDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ('title','body','pub_date','author','category','comments','likes')
+
 

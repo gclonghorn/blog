@@ -1,7 +1,8 @@
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from user.models import User
+from user.models import User,UserFav
+from rest_framework.validators import UniqueTogetherValidator
 
 #注册
 class RegSerializers(serializers.ModelSerializer):
@@ -35,21 +36,69 @@ class RegSerializers(serializers.ModelSerializer):
 
 
 
-
+from browse.serializers import PostDetailSerializer
 from django.contrib.auth import get_user_model
 from rest_framework.validators import UniqueValidator
 from datetime import datetime
 from datetime import timedelta
 import re
 User = get_user_model()
+
+
+#用于粉丝概要信息
+class UserSrializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("username","id",'head')
+
+class followSerializer(serializers.ModelSerializer):
+    user=UserSrializer()
+    class Meta:
+        model=UserFav
+        fields=('user','id')
+class OtherUserDetailSerializer(serializers.ModelSerializer):
+    """
+    用户详情序列化类
+    """
+    posts = PostDetailSerializer(many=True)
+    class Meta:
+        model = User
+        fields = ("username", "tel", "email", "introduction", 'id','reg_date','posts','follower','subscriber','head')#'posts'
+        #ids关注者 usernames粉丝
 class UserDetailSerializer(serializers.ModelSerializer):
     """
     用户详情序列化类
     """
+    posts = PostDetailSerializer(many=True)
     class Meta:
         model = User
-        fields = ("username", "tel", "email", "introduction", 'password','id')
+        fields = ("username", "tel", "email", "introduction", 'password','id','reg_date','posts','follower','subscriber','head')#'posts'
+        #ids关注者 usernames粉丝
+class UserUpdateSerializer(serializers.ModelSerializer):
+    """
+    用户修改信息序列化类
+    """
+   # posts = PostDetailSerializer(many=True)
+    #usernames = followSerializer(many=True, read_only=True)  # 粉丝
+   # ids = followSerializer(many=True, read_only=True)  # 关注者
+    class Meta:
+        model = User
+        fields = ("username", "tel", "email", "introduction", 'password','id','reg_date','head')#'posts'
+        #ids关注者 usernames粉丝
 
+class UserFvaSerializers(serializers.ModelSerializer):
+    """
+    用户关注
+    """
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    # validate实现唯一联合，一个人只能关注一次
+    validators = [
+        UniqueTogetherValidator(queryset=UserFav.objects.all(), fields=('user', 'goods'), message='已经关注')
+    ]
+
+    class Meta:
+        model = UserFav
+        fields = ['user', 'goods', 'id'] #goods关注者 usernames粉丝
 
 
 

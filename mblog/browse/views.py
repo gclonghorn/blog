@@ -1,12 +1,14 @@
 
 from post.models import Post,PostCategory
-from .serializers import PostDetailSerializer,PostSerializer,CategorySrializer
+from .serializers import PostDetailSerializer,PostSerializer
+from post.serializers import CategorySrializer
 from rest_framework import viewsets
 from rest_framework import mixins
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
 from .filters import PostsFilter
 from django_filters.rest_framework import  DjangoFilterBackend
+from rest_framework.response import Response
 import django_filters
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -32,7 +34,14 @@ class PostListSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
     filter_backends = (filters.SearchFilter, filters.OrderingFilter,DjangoFilterBackend)
     filter_class = PostsFilter
     search_fields = ('title', 'body')
-    ordering_fields = ('pub_date',)
+    ordering_fields = ('pub_date','read_num')
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.read_num += 1
+        instance.save()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
     def get_serializer_class(self):
         if self.action == "retrieve":

@@ -45,11 +45,13 @@ INSTALLED_APPS = [
     'django_filters',#过滤
     'rest_framework.authtoken',#认证
     'corsheaders',#跨域
+    'ckeditor',
+    'ckeditor_uploader'
 ]
 
+
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',#跨域
-    'django.middleware.common.CommonMiddleware',#跨域
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -59,12 +61,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
 ROOT_URLCONF = 'mblog.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -121,7 +124,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
     'rest_framework.authentication.BasicAuthentication',
     'rest_framework.authentication.SessionAuthentication',  # 上面两个用于DRF基本验证
-    'rest_framework.authentication.TokenAuthentication',  # TokenAuthentication
+    #'rest_framework.authentication.TokenAuthentication',  # TokenAuthentication
+    #'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
 )
 }
 
@@ -144,3 +148,24 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+os.path.join(BASE_DIR,'static'), #（本设置是加载根目录下的静态文件目录）
+)
+
+LOGIN_REDIRECT_URL='/list/' #内置login
+
+#AUTHENTICATION_BACKENDS = (
+#    'user.views.CustomBackend',
+#)
+#jwt有效期设置
+import datetime
+JWT_AUTH = {
+'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+'JWT_AUTH_HEADER_PREFIX': 'JWT',
+}
+#ckeditior 图片上传
+CKEDITOR_JQUERY_URL = 'https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js'
+MEDIA_URL = "/media/"  #locahost/media/访问保存的文件
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/') #文件上传到的根目录
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+CKEDITOR_IMAGE_BACKEND = 'pillow'

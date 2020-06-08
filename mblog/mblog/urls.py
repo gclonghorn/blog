@@ -1,5 +1,8 @@
+from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework.documentation import include_docs_urls
@@ -8,7 +11,8 @@ from comments.views import CommentViewset,LikeViewset
 from post.views import PostEditViewset
 from rest_framework.authtoken import views
 from rest_framework_jwt.views import obtain_jwt_token
-from user.views import UserViewset
+from user.views import UserViewset,UserFavViewSet
+
 router=DefaultRouter()
 #配置postsurl
 router.register(r'list', PostListSet,basename="list")
@@ -19,9 +23,11 @@ router.register(r'comment', CommentViewset,basename="comment")
 #点赞
 router.register(r'like', LikeViewset,basename="like")
 #用户
-router.register(r'user', UserViewset)
+router.register(r'users', UserViewset)
 #编辑博文
 router.register(r'edit',PostEditViewset)
+#用户关注
+router.register(r'userfavs', UserFavViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,5 +37,9 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),  # drf 认证url
     path('api-token-auth/', views.obtain_auth_token),
     url(r'^login/', obtain_jwt_token),
-
-]
+    url(r'^$', TemplateView.as_view(template_name="index.html")),
+    path('index/', TemplateView.as_view(template_name='index.html')),
+      # 处理图片显示的url,使用Django自带serve,传入参数告诉它去哪个路径找，我们有配置好的路径MEDIAROOT
+      #re_path('media/(?P<path>.*)', serve, {"document_root": MEDIA_ROOT}),
+    url(r'^ckeditor/', include('ckeditor_uploader.urls')),
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

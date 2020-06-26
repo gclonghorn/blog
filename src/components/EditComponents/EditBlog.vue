@@ -1,286 +1,259 @@
 <template>
   <div v-title data-title="编辑博客">
-    <el-container style="margin-right:250px;margin-left:250px; margin-top:30px;">
-      <el-container style="" direction="vertical">
-        <el-form ref="infoForm" :model="Blog" :rules="rules" label-width="120px">
-          <el-form-item label="博客标题" prop="title">
-            <el-input
-                type="textarea"
-                placeholder="请输入博客标题"
-                v-model="Blog.title"
-                maxlength="30"
-                show-word-limit
-                style="width: 70%; float: left"
-              >
-            </el-input>
-          </el-form-item>
-
-          <el-form-item label="内容简介" prop="simple">
-            <el-input
-                type="textarea"
-                placeholder="默认为博客正文的前30字"
-                v-model="Blog.simple"
-                maxlength="30"
-                show-word-limit
-                style="width: 70%; float: left"
-              >
-            </el-input>
-          </el-form-item>
-
-          <el-form-item label="博客标签" prop="tags">
-            <div class="grid-content" style="text-align:left; overflow:visible;">
-              请选择标签：<br>
-              <!--需要输入框长一点-->
-              <el-select
-                v-model="Blog.tags"
-                multiple
-                filterable
-                allow-create
-                default-first-option
-                size="medium"
-                placeholder="请选择文章标签">
-                <el-option
-                  v-for="item in Blog.options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
-            </div>
-          </el-form-item>
-
-          <el-form-item label="博客正文" prop="content">
-            <el-upload
-                    class="avatar-uploader"
-                    :action="serverUrl"
-                    style="width: 50px;"
-                    :headers="header"
-                    :show-file-list="true"
-                    :on-success="uploadSuccess"
-                    :on-error="uploadError"
-                    :file-list="Blog.picList"
-                    :before-upload="beforeUpload">
-            </el-upload>
-            <div class="edit_container">
-              <quill-editor v-model="Blog.content"
-                            ref="myQuillEditor"
-                            class="editer"
-                            :options="editorOption" @ready="onEditorReady($event)">
-              </quill-editor>
-            </div>
-          </el-form-item>
-
-          <el-form-item>
-            <el-upload
-              action="#"
-              list-type="picture-card"
-              :file-list="Blog.fileList"
-              multiple
-              :auto-upload="false">
-                <i slot="default" class="el-icon-plus"></i>
-                <div slot="file" slot-scope="{file}">
-                  <img
-                    class="el-upload-list__item-thumbnail"
-                    :src="getUrl(file)" alt=""
+    <br><br>
+    <el-tabs v-model="activeName" type="card">
+      <el-tab-pane label="发布博客" name="first">
+        <el-container style="margin-right:250px;margin-left:250px; margin-top:30px;">
+          <el-container style="" direction="vertical">
+            <el-form ref="infoForm" :model="Blog" :rules="rules" label-width="120px" enctype="multipart/form-data">
+              <el-form-item label="博客标题" prop="title">
+                <el-input
+                    type="textarea"
+                    placeholder="请输入博客标题"
+                    v-model="Blog.title"
+                    maxlength="30"
+                    show-word-limit
+                    style="width: 70%; float: left"
                   >
-                  <span class="el-upload-list__item-actions">
-                    <span
-                      class="el-upload-list__item-preview"
-                      @click="handlePictureCardPreview(file)"
-                    >
-                      <i class="el-icon-zoom-in"></i>
-                    </span>
-                    <span
-                      v-if="!disabled"
-                      class="el-upload-list__item-delete"
-                      @click="handleRemove(file)"
-                    >
-                      <i class="el-icon-delete"></i>
-                    </span>
-                  </span>
-                </div>
-            </el-upload>
-            <el-dialog :visible.sync="dialogVisible">
-              <img width="100%" :src="dialogImageUrl" alt="">
-            </el-dialog>
-          </el-form-item>
+                </el-input>
+              </el-form-item>
 
-          <el-form-item>
-            <el-button type="primary" @click="onSubmit">发布文章</el-button>
-            <el-button type="danger" >取消</el-button>
-          </el-form-item>
-        </el-form>
-      </el-container>
-    </el-container>
+              <el-form-item label="内容简介" prop="simple">
+                <el-input
+                    type="textarea"
+                    placeholder="默认为博客正文的前30字"
+                    v-model="Blog.simple"
+                    maxlength="30"
+                    show-word-limit
+                    style="width: 70%; float: left"
+                  >
+                </el-input>
+              </el-form-item>
+
+              <el-form-item label="博客标签" prop="tags">
+                <div class="grid-content" style="text-align:left; overflow:visible;">
+                  请选择标签：<br>
+                  <!--需要输入框长一点-->
+                  <el-select
+                    v-model="Blog.tags"
+                    filterable
+                    default-first-option
+                    size="medium"
+                    placeholder="请选择文章标签">
+                    <el-option
+                      v-for="item in Blog.options"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
+                    </el-option>
+                  </el-select>
+                </div>
+              </el-form-item>
+
+              <el-form-item label="博客正文" prop="content">
+                <myEditor v-model="Blog.content" :isClear="isClear"></myEditor>
+
+              </el-form-item>
+
+              <el-form-item>
+                <el-upload
+                  class="upload-demo"
+                  drag
+                  ref="upload"
+                  action="url"
+                  :auto-upload="false"
+                  :http-request="uploadFile"
+                  :file-list="fileList"
+                  :on-change="handleChange"
+                  :limit=1>
+                  <i class="el-icon-upload"></i>
+                  <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                </el-upload>
+              </el-form-item>
+
+              <el-form-item>
+                <el-button type="primary" @click="onSubmit">发布文章</el-button>
+                <el-button type="danger" >取消</el-button>
+              </el-form-item>
+            </el-form>
+          </el-container>
+        </el-container>
+      </el-tab-pane>
+      <el-tab-pane label="仅上传资源" name="second">
+        <el-upload
+          class="upload-demo"
+          drag
+          ref="upload2"
+          action="url"
+          :auto-upload="false"
+          :http-request="uploadFile"
+          :file-list="fileList"
+          :on-change="handleChange"
+          :limit=1>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        </el-upload>
+        <el-button @click="Submit2">上传资源</el-button>
+      </el-tab-pane>
+    </el-tabs>
+
   </div>
 </template>
 
 <script>
-import { addQuillTitle } from '../quill-title.js'
-const toolbarOptions = [
-  ['bold', 'italic', 'underline', 'strike'],
-  ['blockquote', 'code-block'],
-  [{ 'header': 1 }, { 'header': 2 }],
-  [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-  [{ 'script': 'sub' }, { 'script': 'super' }],
-  [{ 'indent': '-1' }, { 'indent': '+1' }],
-  [{ 'direction': 'rtl' }],
-  [{ 'size': ['small', false, 'large', 'huge'] }],
-  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-  [{ 'color': [] }, { 'background': [] }],
-  [{ 'font': [] }],
-  [{ 'align': [] }],
-  ['clean'],
-  ['link', 'image', 'video']
-]
+// import axiosInstance from '../../api/index'
+import myEditor from './wangEditor'
+import {getCategory, submitBlog} from '../../api/api'
+import axiosInstance from '../../api/index'
 export default {
   name: 'test',
   data () {
     return {
+      url: 'http://127.0.0.1:8000/files/',
+      activeName: 'first',
+      UserId: 'User',
+      urls: {
+        Home: '/',
+        UpdateBlog: '/UpdateBlog'
+      },
       Blog: {
         title: '',
         simple: '',
         content: '',
         options: [{
-          value: 'HTML',
-          label: 'HTML'
+          name: 'HTML',
+          id: 'HTML'
         }, {
-          value: 'CSS',
-          label: 'CSS'
-        }, {
-          value: 'JavaScript',
-          label: 'JavaScript'
+          name: 'java',
+          id: 'java'
         }],
-        tags: [],
-        fileList: [],
-        picList:[],
+        tags: '' // 为被选中标签的value属性值
       },
-      editorOption: {
-        theme: 'snow',
-        boundary: document.body,
-        modules: {
-          toolbar: {
-            container: toolbarOptions,
-            handlers: {
-              'image': function (value) {
-                if (value) {
-                  document.querySelector('.avatar-uploader input').click()
-                } else {
-                  this.quill.format('image', false)
-                }
-              }
-            }
-          }
-        },
-        placeholder: 'Insert text here ...',
-        readOnly: false
-      },
-      quillUpdateImg: false, // 根据图片上传状态来确定是否显示loading动画，刚开始是false,不显示
-      serverUrl: '', // 这里写你要上传的图片服务器地址
       header: {token: sessionStorage.token},
       // 表单验证
       rules: {
         title: [
           {required: true, message: '请输入标题', trigger: 'blur'}
         ],
-        content: [
-          {required: true, message: '请输入详细内容', trigger: 'blur'}
-        ],
         tags: [
           {required: true, message: '标签不能为空', trigger: 'blur'}
+        ],
+        content: [
+          {required: true, message: '必须填写正文或资源的简介', trigger: 'blur'}
         ]
       },
+      newBlogId: '',
       dialogImageUrl: '',
       dialogVisible: false,
-      disabled: false
+      disabled: false,
+      fileList: [],
+      isClear: false
+      // param:''
     }
-  },
-  computed: {
-    editor () {
-      return this.$refs.myQuillEditor.quill
-    }
-  },
-  mounted () {
-    // 初始化
-    addQuillTitle()
   },
   methods: {
-    onEditorReady (editor) {
+    log (value) {
+      this.tags = value
+      console.log(this.tags, value)
+    },
+    Submit2(){
+      console.log(this.activeName)
+      console.log(this.fileList)
+      if(this.activeName === 'second' && this.fileList.length === 0){
+        this.$message({
+          message:'必须上传文件',
+          type: 'warning'
+        })
+        return
+      }
+      this.$refs.upload2.submit()
+      this.$message({
+        message:'上传资源成功！', type: 'success'
+      })
+      console.log('upload file only done')
+      this.$router.push('/MainPage')
+    },
+    handleChange (file, fileList) {
+      this.fileList = fileList
+      console.log(this.fileList)
+    },
+    uploadFile () {
+      let axios = axiosInstance
+      let formData = new FormData()
+      formData.append('file', this.fileList[0].raw)
+      formData.append('post', this.newBlogId)
+      formData.append('name', this.fileList[0].name)
+      axios.post(this.url, formData, {headers: {'Content-Type': 'multipart/form-data' }}).then(response => {
+        if (response.status === 201) {
+          this.$message({
+            message: '上传文件成功！',
+            type: 'success'
+          })
+        } else {
+          this.$message({
+            message: '文件上传失败！',
+            type: 'error'
+          })
+        }
+      }).catch(error => {
+        if(error.response){
+          console.log(error.response)
+        }
+      })
     },
     onSubmit () {
-      // 提交
-      // this.$refs.infoForm.validate，这是表单验证
       this.$refs.infoForm.validate((valid) => {
-        if (valid) {
-          this.$post('m/add/about/us', this.infoForm).then(res => {
-            if (res.errCode === 200) { // 修改了==
+        if (valid) { // 创建新博客
+          submitBlog(this.Blog.title, this.Blog.content, this.Blog.tags, this.Blog.simple).then(response => {
+            if (response.status === 201) {
+              console.log(response)
+              this.newBlogId = response.data.id
+              this.$refs.upload.submit()
               this.$message({
-                message: res.errMsg,
-                type: 'success'
+                message:'发布新博客成功！', type:'success'
               })
-              this.$router.push('/aboutus/aboutlist')
+              this.$router.push('/MainPage')// 想跳转到博客展示页面，但是需要用户名和文章名
             } else {
+              console.log(response)
               this.$message({
-                message: res.errMsg,
+                message: '发布新博客失败',
                 type: 'error'
               })
+            }
+          }).catch(error =>{
+            if(error.response){
+              console.log(error.response)
             }
           })
         }
       })
     },
-    submitUpload () {
-      this.$refs.upload.submit()
-    },
-    handleRemove (file, fileList) {
-      console.log(file, fileList)
-    },
-    handlePreview (file) {
-      console.log(file)
-    },
-    beforeUpload () {
-    // 显示loading动画
-      this.quillUpdateImg = true
-    },
-    handleDownload(file) {
-      console.log(file);
-    },
-    uploadSuccess (res, file) {
-      // res为图片服务器返回的数据
-      // 获取富文本组件实例
-      let quill = this.$refs.myQuillEditor.quill
-      // 如果上传成功
-      if (res.code === '200' && res.info !== null) {
-        // 获取光标所在位置
-        let length = quill.getSelection().index
-        // 插入图片  res.info为服务器返回的图片地址
-        quill.insertEmbed(length, 'image', res.info)
-        // 调整光标到最后
-        quill.setSelection(length + 1)
-      } else {
-        this.$message.error('图片插入失败')
-      }
-      // loading动画消失
-      this.quillUpdateImg = false
-    },
-
-    // 富文本图片上传失败
-    uploadError () {
-      // loading动画消失
-      this.quillUpdateImg = false
-      this.$message.error('图片插入失败')
-    },
-    handlePictureCardPreview(file) {
-      this.dialogImageUrl = file.url;
-      this.dialogVisible = true;
-    },
-    getUrl(file){
-      return file.url;
+    getCategory () {
+      getCategory().then(response => {
+        if (response.status === 200) {
+          // let i = 0
+          // let sum = response.data.length
+          // for (i = 0; i < sum; i++) {
+          //   this.Blog.options[i].label = response.data[i].name
+          //   this.Blog.options[i].value = response.data[i].id
+          // }
+          this.Blog.options = response.data
+        }
+      }).catch(error =>{
+        if(error.response){
+          console.log(error.response)
+        }
+      })
     }
   },
   components: {
+    myEditor
+  },
+  mounted () {
+    this.getCategory()
   }
 }
+
 </script>
 
 <style scoped>

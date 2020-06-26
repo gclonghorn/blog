@@ -10,7 +10,6 @@ class PostCategory(models.Model):
     def _unicode_(self):
         return self.name
 
-
 class Post(models.Model):
     title=models.CharField(max_length=200, default='default title',verbose_name="文章标题",help_text="博文标题")
     body=RichTextUploadingField(verbose_name="文章内容",help_text="文章内容",default='')
@@ -21,10 +20,12 @@ class Post(models.Model):
     read_num = models.IntegerField(default=0, verbose_name="阅读量", help_text="阅读量")
     image= models.ImageField(upload_to='upload',null=True,blank=True,help_text='上传图片')
     file= models.FileField(upload_to='upload',null=True,blank=True,help_text='上传文件')
-    excerpt=models.CharField(max_length=200,blank=True)
+    excerpt=models.CharField(max_length=200,blank=True,null=True,verbose_name="文章缩略",help_text='文章简介')
+
 
     def save(self, *args, **kwargs):
-        self.excerpt=self.body[:5]
+        if(self.excerpt==''):
+            self.excerpt=self.body[:30]
         super(Post,self).save(*args, **kwargs)
 
 

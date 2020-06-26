@@ -26,7 +26,7 @@ class CategorySrializer(serializers.ModelSerializer):
         model = PostCategory
         fields = ("name","id",)#"posts"
 
-#用于增删改博文
+#用于博文类别
 class CategorySrializer2(serializers.ModelSerializer):
     class Meta:
         model = PostCategory
@@ -37,9 +37,8 @@ class CategorySrializer2(serializers.ModelSerializer):
 class PostEditSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(
         default=serializers.CurrentUserDefault())
-    #category=CategorySrializer2()
     class Meta:
         model = Post
-        fields = ('title','body','author','category','id','image','file','pub_date')
+        fields = ('title','body','author','category','id','image','file','pub_date','excerpt')#
 
 

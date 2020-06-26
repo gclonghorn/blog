@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'post',
     'user',
     'comments',
+    'File',
     'django_filters',#过滤
     'rest_framework.authtoken',#认证
     'corsheaders',#跨域
@@ -160,8 +161,9 @@ LOGIN_REDIRECT_URL='/list/' #内置login
 #jwt有效期设置
 import datetime
 JWT_AUTH = {
-'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+'JWT_EXPIRATION_DELTA': datetime.timedelta(days=10),
 'JWT_AUTH_HEADER_PREFIX': 'JWT',
+'JWT_RESPONSE_PAYLOAD_HANDLER': 'user.utils.jwt_response_payload_handler',
 }
 #ckeditior 图片上传
 CKEDITOR_JQUERY_URL = 'https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js'

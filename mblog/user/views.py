@@ -18,6 +18,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import *
 from .serializers import *
 from .permissions import IsOwnerOrReadOnly
+from browse.views import StandardResultsSetPagination
 
 # class RegList(ModelViewSet):
 #     queryset = UserProfile.objects.all()
@@ -42,7 +43,7 @@ from .permissions import IsOwnerOrReadOnly
 #             #res.errors 定义好的错误信息
 #         return Response(res.errors)
 
-#User=get_user_model()
+
 
 class CustomBackend(ModelBackend):
     """
@@ -56,7 +57,7 @@ class CustomBackend(ModelBackend):
         except Exception as e:
             return None
 
-class UserViewset(mixins.ListModelMixin,mixins.CreateModelMixin,mixins.UpdateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class UserViewset(mixins.ListModelMixin,mixins.CreateModelMixin,mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,viewsets.GenericViewSet):
     """
     用户
     """
@@ -98,11 +99,18 @@ class UserViewset(mixins.ListModelMixin,mixins.CreateModelMixin,mixins.UpdateMod
         headers = self.get_success_headers(serializer.data)
         return Response(re_dict, status=status.HTTP_201_CREATED, headers=headers)
 
+    '''def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.password==request.data.password:
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_404_NOT_FOUND)'''
     def get_object(self):
         return self.request.user
 
     def perform_create(self, serializer):
         return serializer.save()
+
 
 class UserFavViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin):
     """
@@ -137,3 +145,7 @@ class UserFavViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Crea
         user.subscriber -= 1
         user.save()
         instance.delete()
+
+
+
+

@@ -1,4 +1,5 @@
 import django_filters
+from.models import *
 from post.models import Post
 class UsersFilter(django_filters.rest_framework.FilterSet):
     """

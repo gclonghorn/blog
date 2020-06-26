@@ -43,8 +43,9 @@ class LikeViewset(mixins.ListModelMixin,mixins.CreateModelMixin, mixins.DestroyM
     def perform_create(self, serializer):
         instance=serializer.save()
         post = instance.post
-        post.like_num += 1
+        post.like_num+=1
         post.save()
+
 
     def perform_destroy(self, instance):
         post = instance.post

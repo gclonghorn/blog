@@ -1,5 +1,6 @@
 import django_filters
 from post.models import Post
+from user.models import User
 class PostsFilter(django_filters.rest_framework.FilterSet):
     """
     博文过滤类

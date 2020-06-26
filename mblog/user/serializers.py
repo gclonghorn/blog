@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from user.models import User,UserFav
 from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.serializers import raise_errors_on_nested_writes,model_meta
 
 #注册
 class RegSerializers(serializers.ModelSerializer):
@@ -50,6 +51,11 @@ class UserSrializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("username","id",'head')
+#用于粉丝概要信息
+class UserSrializer3(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id",)
 
 class followSerializer(serializers.ModelSerializer):
     user=UserSrializer()
@@ -83,8 +89,19 @@ class UserUpdateSerializer(serializers.ModelSerializer):
    # ids = followSerializer(many=True, read_only=True)  # 关注者
     class Meta:
         model = User
-        fields = ("username", "tel", "email", "introduction", 'password','id','reg_date','head')#'posts'
-        #ids关注者 usernames粉丝
+        fields = ("username", "tel", "email", "introduction", 'password','id','reg_date','head')
+
+    def update(self, instance, validated_data):
+        instance.username = validated_data.get('username', instance.username)
+        instance.tel = validated_data.get('tel', instance.tel)
+        instance.introduction = validated_data.get('introduction', instance.introduction)
+        instance.email = validated_data.get('email', instance.email)
+        instance.head = validated_data.get('head', instance.head)
+        instance.set_password(validated_data.get('password'))
+        instance.save()
+        return instance
+
+
 
 class UserFvaSerializers(serializers.ModelSerializer):
     """
@@ -99,10 +116,6 @@ class UserFvaSerializers(serializers.ModelSerializer):
     class Meta:
         model = UserFav
         fields = ['user', 'goods', 'id'] #goods关注者 usernames粉丝
-
-
-
-
 
 
 

@@ -58,6 +58,7 @@ class LikeSerializer(serializers.ModelSerializer):
     author=serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
+
     class Meta:
         model = Like
         fields = ('author','post','pub_date','id')  #若添加删除功能fields需包含“id"字段
@@ -65,3 +66,18 @@ class LikeSerializer(serializers.ModelSerializer):
             UniqueTogetherValidator(queryset=Like.objects.all(), fields=('author', 'post'), message='已经点赞')
         ]
 
+class LikeSerializerNew(serializers.ModelSerializer):
+    author=serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+    author_id=serializers.SerializerMethodField(label='当前id')
+    class Meta:
+        model = Like
+        fields = ('author','post','pub_date','id','author_id')  #若添加删除功能fields需包含“id"字段
+        validators = [
+            UniqueTogetherValidator(queryset=Like.objects.all(), fields=('author', 'post'), message='已经点赞')
+        ]
+
+    def get_author_id(self, obj):
+        ID=obj.author.id;
+        return ID

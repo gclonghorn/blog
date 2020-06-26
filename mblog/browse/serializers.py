@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from post.models import Post, PostCategory
 from user.models import User
+from comments.models import Like
 from comments.serializers import CommentDetailSerializer,LikeDetailSerializer
 from post.serializers import CategorySrializer
 
@@ -27,10 +28,14 @@ class PostDetailSerializer(serializers.ModelSerializer):
     category = CategorySrializer()
     comments = CommentDetailSerializer(many=True, read_only=True)
     likes = LikeDetailSerializer(many=True, read_only=True)
+    like_num = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = ('title','body','pub_date','author','category','comments','likes',
                   'like_num','read_num','image','file','excerpt','id')
 
+    def get_like_num(self,obj):
+        like_num=len(Like.objects.filter(post=obj))
+        return like_num
 
